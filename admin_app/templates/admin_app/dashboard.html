@@ -1,0 +1,138 @@
+{% extends 'admin_app/base.html' %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card primary">
+            <i class="bi bi-people" style="font-size: 2rem;"></i>
+            <h5>{{ total_users }}</h5>
+            <p>Total User</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card success">
+            <i class="bi bi-person-badge" style="font-size: 2rem;"></i>
+            <h5>{{ total_admins }}</h5>
+            <p>Administrator</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card info">
+            <i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i>
+            <h5>{{ total_logs }}</h5>
+            <p>Audit Logs</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card warning">
+            <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+            <h5>{{ recent_logs|length }}</h5>
+            <p>Recent Activities</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities -->
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="bi bi-activity"></i> Aktivitas Terakhir
+        <a href="{% url 'audit_logs' %}" class="btn btn-sm btn-outline-primary float-end">
+            Lihat Semua <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if recent_logs %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Model</th>
+                        <th>Description</th>
+                        <th>Waktu</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td>
+                            <strong>{{ log.user.get_full_name|default:log.user.username }}</strong>
+                        </td>
+                        <td>
+                            {% if log.action == 'create' %}
+                                <span class="badge bg-success">Create</span>
+                            {% elif log.action == 'update' %}
+                                <span class="badge bg-info">Update</span>
+                            {% elif log.action == 'delete' %}
+                                <span class="badge bg-danger">Delete</span>
+                            {% elif log.action == 'login' %}
+                                <span class="badge bg-primary">Login</span>
+                            {% elif log.action == 'logout' %}
+                                <span class="badge bg-secondary">Logout</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ log.action }}</span>
+                            {% endif %}
+                        </td>
+                        <td><code>{{ log.model_name }}</code></td>
+                        <td>{{ log.description }}</td>
+                        <td>
+                            <small class="text-muted" title="{{ log.timestamp }}">
+                                {{ log.timestamp|date:"d M Y H:i" }}
+                            </small>
+                        </td>
+                        <td><small>{{ log.ip_address|default:"Unknown" }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-muted py-4">Belum ada aktivitas</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-link-45deg"></i> Quick Links
+            </div>
+            <div class="card-body">
+                <a href="{% url 'user_list' %}" class="btn btn-outline-primary btn-sm mb-2 w-100">
+                    <i class="bi bi-people"></i> Manage Users
+                </a>
+                <a href="/admin/" class="btn btn-outline-secondary btn-sm mb-2 w-100">
+                    <i class="bi bi-shield-lock"></i> Django Admin
+                </a>
+                <a href="{% url 'audit_logs' %}" class="btn btn-outline-info btn-sm w-100">
+                    <i class="bi bi-file-earmark-text"></i> View Audit Logs
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> System Information
+            </div>
+            <div class="card-body">
+                <p><strong>Django Version:</strong> <span class="badge bg-light text-dark">4.2+</span></p>
+                <p><strong>Python Version:</strong> <span class="badge bg-light text-dark">3.10+</span></p>
+                <p><strong>Database:</strong> <span class="badge bg-light text-dark">SQLite</span></p>
+                <p class="text-muted small mb-0">Last updated: {{ "now"|date:"d M Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

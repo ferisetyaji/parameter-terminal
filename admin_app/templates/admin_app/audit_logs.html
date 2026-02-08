@@ -1,0 +1,151 @@
+{% extends 'admin_app/base.html' %}
+
+{% block title %}Audit Logs - Admin{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-file-earmark-text"></i> Audit Logs
+</div>
+
+<!-- Filter and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control" placeholder="Cari deskripsi..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="action" class="form-select">
+                    <option value="">Semua Actions</option>
+                    {% for action in action_choices %}
+                        <option value="{{ action }}" {% if filter_action == action %}selected{% endif %}>{{ action|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="user" class="form-control" placeholder="Nama User..." value="{{ filter_user }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+                {% if filter_action or filter_user or search_query %}
+                <a href="{% url 'audit_logs' %}" class="btn btn-link">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Logs Table -->
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-list-ul"></i> Audit Log Entries
+    </div>
+    <div class="card-body">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Model</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                    <tr>
+                        <td>
+                            <small class="text-muted" title="{{ log.timestamp }}">
+                                {{ log.timestamp|date:"d M Y H:i:s" }}
+                            </small>
+                        </td>
+                        <td>
+                            {% if log.user %}
+                                <a href="{% url 'user_detail' log.user.id %}">
+                                    {{ log.user.get_full_name|default:log.user.username }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.action == 'create' %}
+                                <span class="badge bg-success">Create</span>
+                            {% elif log.action == 'update' %}
+                                <span class="badge bg-info">Update</span>
+                            {% elif log.action == 'delete' %}
+                                <span class="badge bg-danger">Delete</span>
+                            {% elif log.action == 'login' %}
+                                <span class="badge bg-primary">Login</span>
+                            {% elif log.action == 'logout' %}
+                                <span class="badge bg-secondary">Logout</span>
+                            {% elif log.action == 'view' %}
+                                <span class="badge bg-light text-dark">View</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ log.action }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <code class="small">{{ log.model_name }}</code>
+                        </td>
+                        <td>{{ log.description }}</td>
+                        <td>
+                            <small>{{ log.ip_address|default:"Unknown" }}</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_action %}&action={{ filter_action }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_action %}&action={{ filter_action }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_action %}&action={{ filter_action }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_action %}&action={{ filter_action }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_action %}&action={{ filter_action }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p class="text-center text-muted py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <br>
+            Tidak ada log ditemukan
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'admin_app/base.html' %}
+
+{% block title %}System Settings - Admin{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-gear"></i> System Settings
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-sliders"></i> General Settings
+            </div>
+            <form method="post" class="card-body">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="site_name" class="form-label">Site Name</label>
+                    <input type="text" class="form-control" id="site_name" name="setting_site_name" value="{% for s in settings %}{% if s.key == 'site_name' %}{{ s.value }}{% endif %}{% endfor %}" placeholder="Admin Dashboard">
+                    <small class="text-muted">Nama situs yang ditampilkan</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="site_description" class="form-label">Site Description</label>
+                    <textarea class="form-control" id="site_description" name="setting_site_description" rows="3" placeholder="Deskripsi situs Anda">{% for s in settings %}{% if s.key == 'site_description' %}{{ s.value }}{% endif %}{% endfor %}</textarea>
+                    <small class="text-muted">Deskripsi singkat tentang situs</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="items_per_page" class="form-label">Items Per Page</label>
+                    <input type="number" class="form-control" id="items_per_page" name="setting_items_per_page" value="{% for s in settings %}{% if s.key == 'items_per_page' %}{{ s.value }}{% endif %}{% endfor %}" placeholder="10" min="5" max="100">
+                    <small class="text-muted">Jumlah item yang ditampilkan per halaman</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="maintenance_mode" class="form-label">Maintenance Mode</label>
+                    <select class="form-select" id="maintenance_mode" name="setting_maintenance_mode">
+                        <option value="false" {% for s in settings %}{% if s.key == 'maintenance_mode' and s.value != 'true' %}selected{% endif %}{% endfor %}>Disabled</option>
+                        <option value="true" {% for s in settings %}{% if s.key == 'maintenance_mode' and s.value == 'true' %}selected{% endif %}{% endfor %}>Enabled</option>
+                    </select>
+                    <small class="text-muted">Aktifkan mode pemeliharaan</small>
+                </div>
+
+                <hr class="my-4">
+
+                <h5><i class="bi bi-shield-check"></i> Security Settings</h5>
+
+                <div class="mb-3">
+                    <label for="session_timeout" class="form-label">Session Timeout (minutes)</label>
+                    <input type="number" class="form-control" id="session_timeout" name="setting_session_timeout" value="{% for s in settings %}{% if s.key == 'session_timeout' %}{{ s.value }}{% endif %}{% endfor %}" placeholder="30" min="5" max="480">
+                    <small class="text-muted">Waktu idle sebelum session berakhir</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="max_login_attempts" class="form-label">Max Login Attempts</label>
+                    <input type="number" class="form-control" id="max_login_attempts" name="setting_max_login_attempts" value="{% for s in settings %}{% if s.key == 'max_login_attempts' %}{{ s.value }}{% endif %}{% endfor %}" placeholder="5" min="1" max="10">
+                    <small class="text-muted">Jumlah maksimal percobaan login</small>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> Information
+            </div>
+            <div class="card-body">
+                <p><strong>Last Updated:</strong></p>
+                <p>
+                    <small>{{ "now"|date:"d M Y H:i:s" }}</small>
+                </p>
+
+                <hr>
+
+                <div class="alert alert-info" role="alert">
+                    <small>
+                        <i class="bi bi-lightbulb"></i> 
+                        Pengaturan sistem ini akan mempengaruhi keseluruhan aplikasi. Pastikan untuk menguji perubahan sebelum menerapkannya ke produksi.
+                    </small>
+                </div>
+
+                <hr>
+
+                <p><strong>Tips:</strong></p>
+                <ul class="small">
+                    <li>Selalu backup data sebelum mengubah pengaturan penting</li>
+                    <li>Periksa log aktivitas untuk audit trail</li>
+                    <li>Dokumentasikan perubahan penting</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

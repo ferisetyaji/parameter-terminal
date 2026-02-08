@@ -1,0 +1,148 @@
+{% extends 'admin_app/base.html' %}
+
+{% block title %}{{ user.get_full_name|default:user.username }} - Admin{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h1 class="page-title">
+            <i class="bi bi-person"></i> User Detail
+        </h1>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'user_edit' user.id %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'user_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}" class="rounded-circle mb-3" width="150" height="150">
+                {% else %}
+                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                        <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
+                    </div>
+                {% endif %}
+                <h4>{{ user.get_full_name|default:user.username }}</h4>
+                <p class="text-muted">@{{ user.username }}</p>
+                <p>
+                    <span class="badge-role badge-{{ profile.role }}">
+                        {{ profile.get_role_display }}
+                    </span>
+                </p>
+                <hr>
+                <p class="text-muted">
+                    <small>Member sejak: {{ user.date_joined|date:"d M Y" }}</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> Basic Information
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Username:</strong></p>
+                        <p>{{ user.username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Email:</strong></p>
+                        <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>First Name:</strong></p>
+                        <p>{{ user.first_name|default:"--" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Last Name:</strong></p>
+                        <p>{{ user.last_name|default:"--" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-telephone"></i> Contact Information
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <p><strong>Phone:</strong></p>
+                        <p>{{ profile.phone|default:"--" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <p><strong>Address:</strong></p>
+                        <p>{{ profile.address|default:"--" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>City:</strong></p>
+                        <p>{{ profile.city|default:"--" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Country:</strong></p>
+                        <p>{{ profile.country|default:"--" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-shield-check"></i> Account Status
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong></p>
+                        <p>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Staff Status:</strong></p>
+                        <p>
+                            {% if user.is_staff %}
+                                <span class="badge bg-primary">Staff</span>
+                            {% else %}
+                                <span class="badge bg-secondary">User</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Last Login:</strong></p>
+                        <p>{{ user.last_login|default:"Never" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Joined:</strong></p>
+                        <p>{{ user.date_joined|date:"d M Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

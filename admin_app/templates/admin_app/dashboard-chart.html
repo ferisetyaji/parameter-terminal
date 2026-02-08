@@ -1,0 +1,149 @@
+{% extends 'admin_app/base.html' %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</div>
+
+<!-- Crypto Analysis Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Current Price (BTC)</h6>
+                <h3>${{ crypto_analysis.latest_price|floatformat:2 }}</h3>
+                <small class="{% if crypto_analysis.price_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    <i class="bi bi-{% if crypto_analysis.price_change >= 0 %}graph-up{% else %}graph-down{% endif %}"></i>
+                    {{ crypto_analysis.price_change|floatformat:2 }} ({{ crypto_analysis.price_change_percent|floatformat:2 }}%)
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Trend</h6>
+                <h3 class="{% if crypto_analysis.trend == 'BULLISH' %}text-success{% else %}text-danger{% endif %}">{{ crypto_analysis.trend }}</h3>
+                <small>SMA 7: ${{ crypto_analysis.sma_7|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">RSI (14)</h6>
+                <h3>{{ crypto_analysis.rsi|floatformat:1 }}</h3>
+                <small>
+                    {% if crypto_analysis.rsi > 70 %}
+                        <span class="badge bg-danger">Overbought</span>
+                    {% elif crypto_analysis.rsi < 30 %}
+                        <span class="badge bg-success">Oversold</span>
+                    {% else %}
+                        <span class="badge bg-warning">Neutral</span>
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Range (30 Days)</h6>
+                <small>High: ${{ crypto_analysis.highest_price|floatformat:2 }}</small>
+                <br>
+                <small>Low: ${{ crypto_analysis.lowest_price|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Candlestick Chart -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Bitcoin Candlestick Chart (30 Days)</h5>
+    </div>
+    <div class="card-body">
+        <div class="chart-container" style="position: relative; height: 400px;">
+            <canvas id="candlestickChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.0/dist/chartjs-chart-financial.js"></script>
+
+<script>
+    // Candlestick data from Django context
+    const candleData = {{ candlestick_data|safe }};
+    
+    // Prepare data for Chart.js
+    const chartData = candleData.map(candle => ({
+        x: candle.x,
+        o: candle.o,
+        h: candle.h,
+        l: candle.l,
+        c: candle.c
+    }));
+    
+    const ctx = document.getElementById('candlestickChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'candlestick',
+        data: {
+            datasets: [{
+                label: 'Bitcoin Price',
+                data: chartData,
+                borderColor: 'rgb(0, 0, 0)',
+                color: {
+                    up: 'rgb(75, 192, 75)',
+                    down: 'rgb(192, 75, 75)',
+                    unchanged: 'rgb(125, 125, 125)'
+                }
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Bitcoin Candlestick Chart - 30 Days Analysis'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day',
+                        displayFormats: {
+                            day: 'MMM DD'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Price (USD)'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}
