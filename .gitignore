@@ -1,0 +1,6 @@
+# Cache directories
+.cache/
+cache/
+*.cache
+__pycache__/
+node_modules/.cache/
