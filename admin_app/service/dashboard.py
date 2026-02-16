@@ -40,20 +40,20 @@ def service_dashboard():
 
 def generate_crypto_candlestick_data():
     """Generate crypto candlestick data from CoinGecko API for last 24 hours"""
-    market_data = market_chart("bitcoin", "usd", "1")
+    market_data = market_chart("bitcoin", "usd", "30")
     prices = market_data.get("prices", [])
 
     if not prices:
         return []
 
-    # Group prices by hour
-    hourly_data = {}
+    # Group prices by day
+    daily_data = {}
     for timestamp, price in prices:
         dt = datetime.fromtimestamp(timestamp / 1000)  # timestamp is in milliseconds
-        hour_key = dt.replace(minute=0, second=0, microsecond=0)
+        day_key = dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
-        if hour_key not in hourly_data:
-            hourly_data[hour_key] = {
+        if day_key not in daily_data:
+            daily_data[day_key] = {
                 "open": price,
                 "high": price,
                 "low": price,
@@ -61,16 +61,16 @@ def generate_crypto_candlestick_data():
             }
         else:
             # Update high and low
-            hourly_data[hour_key]["high"] = max(hourly_data[hour_key]["high"], price)
-            hourly_data[hour_key]["low"] = min(hourly_data[hour_key]["low"], price)
-            hourly_data[hour_key]["close"] = price  # Last price becomes close
+            daily_data[day_key]["high"] = max(daily_data[day_key]["high"], price)
+            daily_data[day_key]["low"] = min(daily_data[day_key]["low"], price)
+            daily_data[day_key]["close"] = price  # Last price becomes close
 
     # Convert to candlestick format
     candlestick_data = []
-    for hour_key, ohlc in sorted(hourly_data.items()):
+    for day_key, ohlc in sorted(daily_data.items()):
         candlestick_data.append(
             {
-                "x": hour_key.strftime("%Y-%m-%d %H:%M"),
+                "x": day_key.isoformat(),
                 "o": round(ohlc["open"], 2),
                 "h": round(ohlc["high"], 2),
                 "l": round(ohlc["low"], 2),
