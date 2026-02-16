@@ -19,8 +19,6 @@ def service_dashboard():
     # Generate crypto candlestick data
     candlestick_data = generate_crypto_candlestick_data()
 
-    print(candlestick_data)
-
     # Analyze crypto data
     crypto_analysis = analyze_crypto_data(candlestick_data)
 
