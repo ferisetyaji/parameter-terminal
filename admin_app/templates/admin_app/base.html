@@ -318,11 +318,6 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" href="{% url 'user_list' %}" title="User Management">
-                            <i class="bi bi-bar-chart-line"></i><span> Indikator</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" href="{% url 'user_list' %}" title="User Management">
                             <i class="bi bi-people"></i><span> User Management</span>
                         </a>
                     </li>
@@ -381,7 +376,7 @@
 
             // Check localStorage untuk sidebar state
             const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            
+
             if (sidebarCollapsed && sidebar) {
                 sidebar.classList.add('collapsed');
                 mainWrapper.classList.add('collapsed');
@@ -393,7 +388,7 @@
                     if (sidebar) {
                         sidebar.classList.toggle('collapsed');
                         mainWrapper.classList.toggle('collapsed');
-                        
+
                         // Save state to localStorage
                         const isCollapsed = sidebar.classList.contains('collapsed');
                         localStorage.setItem('sidebarCollapsed', isCollapsed);
